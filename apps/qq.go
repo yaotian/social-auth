@@ -17,13 +17,13 @@
 package apps
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
-	"encoding/json"
 	"strings"
 
-	"github.com/astaxie/beego/httplib"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/httplib"
 
 	"github.com/yaotian/social-auth"
 )
@@ -46,7 +46,7 @@ func (p *QQ) GetPath() string {
 
 func (p *QQ) GetIndentify(tok *social.Token) (string, error) {
 	vals := make(map[string]interface{})
-	
+
 	uri := "https://graph.qq.com/oauth2.0/me?access_token=" + url.QueryEscape(tok.AccessToken)
 	req := httplib.Get(uri)
 	req.SetTransport(social.DefaultTransport)
@@ -55,22 +55,22 @@ func (p *QQ) GetIndentify(tok *social.Token) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	beego.Info("get indentify body:",body)
-	body = strings.Replace(body,"callback( ","",-1)
-	body = strings.Replace(body," );","",-1)
-	beego.Info("get indentify body2:",body)
-	
-//
-//	vals, err := url.ParseQuery(body)
-//	if err != nil {
-//		return "", err
-//	}
+	beego.Info("get indentify body:", body)
+	body = strings.Replace(body, "callback( ", "", -1)
+	body = strings.Replace(body, " );", "", -1)
+	beego.Info("get indentify body2:", body)
 
-//	resp, err := req.Response()
-//	if err != nil {
-//		return "", err
-//	}
-//	defer resp.Body.Close()
+	//
+	//	vals, err := url.ParseQuery(body)
+	//	if err != nil {
+	//		return "", err
+	//	}
+
+	//	resp, err := req.Response()
+	//	if err != nil {
+	//		return "", err
+	//	}
+	//	defer resp.Body.Close()
 
 	decoder := json.NewDecoder(strings.NewReader(body))
 	decoder.UseNumber()
@@ -80,11 +80,12 @@ func (p *QQ) GetIndentify(tok *social.Token) (string, error) {
 	}
 
 	beego.Info(vals)
-	if vals["code"] != "" {
-		return "", fmt.Errorf("code: %s, msg: %s", vals["code"], vals["msg"])
-	}
 
-	return fmt.Sprint(vals["openid"]), nil 
+	if opid, ok := vals["openid"]; ok {
+		return fmt.Sprint(opid), nil
+	}else{
+		return "", fmt.Errorf("can't get qq identify")
+	}
 }
 
 var _ social.Provider = new(QQ)
