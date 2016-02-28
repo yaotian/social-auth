@@ -22,7 +22,7 @@ import (
 
 	"github.com/astaxie/beego/httplib"
 
-	"github.com/beego/social-auth"
+	"github.com/yaotian/social-auth"
 )
 
 type QQ struct {
