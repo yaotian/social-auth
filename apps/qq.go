@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/astaxie/beego/httplib"
+	"github.com/astaxie/beego"
 
 	"github.com/yaotian/social-auth"
 )
@@ -54,9 +55,11 @@ func (p *QQ) GetIndentify(tok *social.Token) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+	beego.Info("get indentify body:",body)
 	body = strings.Replace(body,"callback( ","",-1)
 	body = strings.Replace(body," );","",-1)
+	beego.Info("get indentify body2:",body)
+	
 //
 //	vals, err := url.ParseQuery(body)
 //	if err != nil {
@@ -76,7 +79,7 @@ func (p *QQ) GetIndentify(tok *social.Token) (string, error) {
 		return "", err
 	}
 
-
+	beego.Info(vals)
 	if vals["code"] != "" {
 		return "", fmt.Errorf("code: %s, msg: %s", vals["code"], vals["msg"])
 	}
