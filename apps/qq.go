@@ -19,6 +19,7 @@ package apps
 import (
 	"fmt"
 	"net/url"
+	"encoding/json"
 
 	"github.com/astaxie/beego/httplib"
 
@@ -42,25 +43,41 @@ func (p *QQ) GetPath() string {
 }
 
 func (p *QQ) GetIndentify(tok *social.Token) (string, error) {
+	vals := make(map[string]interface{})
+	
 	uri := "https://graph.qq.com/oauth2.0/me?access_token=" + url.QueryEscape(tok.AccessToken)
 	req := httplib.Get(uri)
 	req.SetTransport(social.DefaultTransport)
 
-	body, err := req.String()
+//	body, err := req.String()
+//	if err != nil {
+//		return "", err
+//	}
+//
+//	vals, err := url.ParseQuery(body)
+//	if err != nil {
+//		return "", err
+//	}
+
+	resp, err := req.Response()
 	if err != nil {
 		return "", err
 	}
+	defer resp.Body.Close()
 
-	vals, err := url.ParseQuery(body)
-	if err != nil {
+	decoder := json.NewDecoder(resp.Body)
+	decoder.UseNumber()
+
+	if err := decoder.Decode(&vals); err != nil {
 		return "", err
 	}
 
-	if vals.Get("code") != "" {
-		return "", fmt.Errorf("code: %s, msg: %s", vals.Get("code"), vals.Get("msg"))
+
+	if vals["code"] != "" {
+		return "", fmt.Errorf("code: %s, msg: %s", vals["code"], vals["msg"])
 	}
 
-	return vals.Get("openid"), nil
+	return fmt.Sprint(vals["openid"]), nil 
 }
 
 var _ social.Provider = new(QQ)
