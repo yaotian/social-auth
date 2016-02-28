@@ -42,7 +42,7 @@ func (p *QQ) GetPath() string {
 }
 
 func (p *QQ) GetIndentify(tok *social.Token) (string, error) {
-	uri := "https://graph.z.qq.com/moc2/me?access_token=" + url.QueryEscape(tok.AccessToken)
+	uri := "https://graph.qq.com/oauth2.0/me?access_token=" + url.QueryEscape(tok.AccessToken)
 	req := httplib.Get(uri)
 	req.SetTransport(social.DefaultTransport)
 
