@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"net/url"
 	"encoding/json"
+	"strings"
 
 	"github.com/astaxie/beego/httplib"
 
@@ -49,23 +50,26 @@ func (p *QQ) GetIndentify(tok *social.Token) (string, error) {
 	req := httplib.Get(uri)
 	req.SetTransport(social.DefaultTransport)
 
-//	body, err := req.String()
-//	if err != nil {
-//		return "", err
-//	}
+	body, err := req.String()
+	if err != nil {
+		return "", err
+	}
+	
+	body = strings.Replace(body,"callback( ","",-1)
+	body = strings.Replace(body," );","",-1)
 //
 //	vals, err := url.ParseQuery(body)
 //	if err != nil {
 //		return "", err
 //	}
 
-	resp, err := req.Response()
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
+//	resp, err := req.Response()
+//	if err != nil {
+//		return "", err
+//	}
+//	defer resp.Body.Close()
 
-	decoder := json.NewDecoder(resp.Body)
+	decoder := json.NewDecoder(strings.NewReader(body))
 	decoder.UseNumber()
 
 	if err := decoder.Decode(&vals); err != nil {
